@@ -9,6 +9,13 @@
 #include "m3_info.h"
 #include "m3_compile.h"
 
+#ifdef __KERNEL__
+#define PRIi32 "i"
+#define PRIi64 "lli"
+#define PRIu32 "u"
+#define PRIu64 "llu"
+#endif
+
 #if defined(DEBUG) || (d_m3EnableStrace >= 2)
 
 size_t  SPrintArg  (char * o_string, size_t i_stringBufferSize, voidptr_t i_sp, u8 i_type)
@@ -52,7 +59,8 @@ cstr_t  SPrintFunctionArgList  (IM3Function i_function, m3stack_t i_sp)
     {
         u32 numArgs = funcType->numArgs;
 
-        for (u32 i = 0; i < numArgs; ++i)
+        u32 i;
+        for (i = 0; i < numArgs; ++i)
         {
             u8 type = d_FuncArgType(funcType, i);
 
@@ -143,8 +151,9 @@ cstr_t  SPrintFuncTypeSignature  (IM3FuncType i_funcType)
     static char string [256];
 
     sprintf (string, "(");
-
-    for (u32 i = 0; i < i_funcType->numArgs; ++i)
+    
+    u32 i;
+    for (i = 0; i < i_funcType->numArgs; ++i)
     {
         if (i != 0)
             strcat (string, ", ");
@@ -154,7 +163,7 @@ cstr_t  SPrintFuncTypeSignature  (IM3FuncType i_funcType)
 
     strcat (string, ") -> ");
 
-    for (u32 i = 0; i < i_funcType->numRets; ++i)
+    for (i = 0; i < i_funcType->numRets; ++i)
     {
         if (i != 0)
             strcat (string, ", ");
@@ -181,13 +190,15 @@ OpInfo find_operation_info  (IM3Operation i_operation)
     if (!i_operation) return opInfo;
 
     // TODO: find also extended opcodes
-    for (u32 i = 0; i <= 0xff; ++i)
+    u32 i;
+    for (i = 0; i <= 0xff; ++i)
     {
         IM3OpInfo oi = GetOpInfo (i);
 
         if (oi->type != c_m3Type_unknown)
         {
-            for (u32 o = 0; o < 4; ++o)
+            u32 o;
+            for (o = 0; o < 4; ++o)
             {
                 if (oi->operations [o] == i_operation)
                 {
@@ -257,7 +268,8 @@ d_m3Decoder  (BranchTable)
 
     i32 targets = fetch (i32);
 
-    for (i32 i = 0; i < targets; ++i)
+    i32 i;
+    for (i = 0; i < targets; ++i)
     {
         pc_t addr = fetch (pc_t);
         o_string += sprintf (o_string, "%" PRIi32 "=%p, ", i, addr);
@@ -355,13 +367,15 @@ void  dump_type_stack  (IM3Compilation o)
     printf ("%s %s    ", regAllocated [0] ? "(r0)" : "    ", regAllocated [1] ? "(fp0)" : "     ");
     printf("\n");
 
-    for (u32 p = 1; p <= 2; ++p)
+    u32 p;
+    for (p = 1; p <= 2; ++p)
     {
         d_m3Log(stack, "        ");
 
-        for (u16 i = 0; i < o->stackIndex; ++i)
+        u16 i;
+        for (i = 0; i < o->stackIndex; ++i)
         {
-            if (i > 0 and i == o->stackFirstDynamicIndex)
+            if (i > 0 && i == o->stackFirstDynamicIndex)
                 printf ("#");
 
             if (i == o->block.blockStackIndex)
@@ -426,19 +440,20 @@ void  dump_type_stack  (IM3Compilation o)
     {
         d_m3Log (stack, "                      -");
 
-        for (u16 i = o->slotFirstDynamicIndex; i < maxSlot; ++i)
+        u16 i;
+        for (i = o->slotFirstDynamicIndex; i < maxSlot; ++i)
             printf ("----");
 
         printf ("\n");
 
         d_m3Log (stack, "                 slot |");
-        for (u16 i = o->slotFirstDynamicIndex; i < maxSlot; ++i)
+        for (i = o->slotFirstDynamicIndex; i < maxSlot; ++i)
             printf ("%3d|", i);
 
         printf ("\n");
         d_m3Log (stack, "                alloc |");
 
-        for (u16 i = o->slotFirstDynamicIndex; i < maxSlot; ++i)
+        for (i = o->slotFirstDynamicIndex; i < maxSlot; ++i)
         {
             printf ("%3d|", o->m3Slots [i]);
         }
@@ -475,7 +490,7 @@ const char *  get_indention_string  (IM3Compilation o)
 void  log_opcode  (IM3Compilation o, m3opcode_t i_opcode)
 {
     i32 depth = o->block.depth;
-    if (i_opcode == c_waOp_end or i_opcode == c_waOp_else)
+    if (i_opcode == c_waOp_end || i_opcode == c_waOp_else)
         depth--;
 
     m3log (compile, "%4d | 0x%02x  %s %s", o->numOpcodes++, i_opcode, GetOpcodeIndentionString (depth), GetOpInfo(i_opcode)->name);

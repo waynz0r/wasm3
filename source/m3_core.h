@@ -8,11 +8,19 @@
 #ifndef m3_core_h
 #define m3_core_h
 
+#ifdef __KERNEL__
+
+#include <linux/kernel.h>
+
+#elif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
+
+#endif
 
 #include "wasm3.h"
 #include "m3_config.h"
@@ -120,7 +128,7 @@ const void * const  cvptr_t;
 
 
 # if defined(ASSERTS) || (defined(DEBUG) && !defined(NASSERTS))
-#   define d_m3Assert(ASS)  if (!(ASS)) { printf("Assertion failed at %s:%d : %s\n", __FILE__, __LINE__, #ASS); abort(); }
+#   define d_m3Assert(ASS)  if (!(ASS)) { printf("Assertion failed at %s:%d : %s\n", __FILE__, __LINE__, #ASS); }
 # else
 #   define d_m3Assert(ASS)
 # endif

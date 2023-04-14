@@ -32,7 +32,9 @@
 #include "m3_info.h"
 #include "m3_exec_defs.h"
 
+#ifndef __KERNEL__
 #include <limits.h>
+#endif
 
 d_m3BeginExternC
 

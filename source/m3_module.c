@@ -11,7 +11,8 @@
 
 void Module_FreeFunctions (IM3Module i_module)
 {
-    for (u32 i = 0; i < i_module->numFunctions; ++i)
+    u32 i;
+    for (i = 0; i < i_module->numFunctions; ++i)
     {
         IM3Function func = & i_module->functions [i];
         Function_Release (func);
@@ -34,7 +35,8 @@ void  m3_FreeModule  (IM3Module i_module)
         m3_Free (i_module->dataSegments);
         m3_Free (i_module->table0);
 
-        for (u32 i = 0; i < i_module->numGlobals; ++i)
+        u32 i;
+        for (i = 0; i < i_module->numGlobals; ++i)
         {
             m3_Free (i_module->globals[i].name);
             FreeImportInfo(&(i_module->globals[i].import));
@@ -95,7 +97,7 @@ _   (Module_PreallocFunctions(io_module, io_module->numFunctions));
     func->index = index;
 #   endif
 
-    if (i_importInfo and func->numNames == 0)
+    if (i_importInfo && func->numNames == 0)
     {
         func->import = * i_importInfo;
         func->names[0] = i_importInfo->fieldUtf8;
@@ -111,7 +113,8 @@ _   (Module_PreallocFunctions(io_module, io_module->numFunctions));
 #ifdef DEBUG
 void  Module_GenerateNames  (IM3Module i_module)
 {
-    for (u32 i = 0; i < i_module->numFunctions; ++i)
+    u32 i;
+    for (i = 0; i < i_module->numFunctions; ++i)
     {
         IM3Function func = & i_module->functions [i];
 
@@ -123,7 +126,7 @@ void  Module_GenerateNames  (IM3Module i_module)
             func->numNames = 1;
         }
     }
-    for (u32 i = 0; i < i_module->numGlobals; ++i)
+    for (i = 0; i < i_module->numGlobals; ++i)
     {
         IM3Global global = & i_module->globals [i];
 

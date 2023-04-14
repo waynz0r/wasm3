@@ -14,9 +14,9 @@
 
 void m3_Abort(const char* message) {
 #ifdef DEBUG
-    fprintf(stderr, "Error: %s\n", message);
+    printf("Error: %s\n", message);
 #endif
-    abort();
+   // abort(); // TODO abort
 }
 
 M3_WEAK
@@ -126,19 +126,19 @@ void *  m3_Realloc_Impl  (void * i_ptr, size_t i_newSize, size_t i_oldSize)
 
 void *  m3_Malloc_Impl  (size_t i_size)
 {
-    return calloc (i_size, 1);
+    return kzalloc (i_size, GFP_KERNEL);
 }
 
 void  m3_Free_Impl  (void * io_ptr)
 {
-    free (io_ptr);
+    kfree (io_ptr);
 }
 
 void *  m3_Realloc_Impl  (void * i_ptr, size_t i_newSize, size_t i_oldSize)
 {
     if (M3_UNLIKELY(i_newSize == i_oldSize)) return i_ptr;
 
-    void * newPtr = realloc (i_ptr, i_newSize);
+    void * newPtr = krealloc (i_ptr, i_newSize, GFP_KERNEL);
 
     if (M3_LIKELY(newPtr))
     {
@@ -203,7 +203,7 @@ M3Result NormalizeType (u8 * o_type, i8 i_convolutedWasmType)
 
     if (type == 0x40)
         type = c_m3Type_none;
-    else if (type < c_m3Type_i32 or type > c_m3Type_f64)
+    else if (type < c_m3Type_i32 || type > c_m3Type_f64)
         result = m3Err_invalidTypeId;
 
     * o_type = type;
@@ -214,21 +214,21 @@ M3Result NormalizeType (u8 * o_type, i8 i_convolutedWasmType)
 
 bool  IsFpType  (u8 i_m3Type)
 {
-    return (i_m3Type == c_m3Type_f32 or i_m3Type == c_m3Type_f64);
+    return (i_m3Type == c_m3Type_f32 || i_m3Type == c_m3Type_f64);
 }
 
 
 bool  IsIntType  (u8 i_m3Type)
 {
-    return (i_m3Type == c_m3Type_i32 or i_m3Type == c_m3Type_i64);
+    return (i_m3Type == c_m3Type_i32 || i_m3Type == c_m3Type_i64);
 }
 
 
 bool  Is64BitType  (u8 i_m3Type)
 {
-    if (i_m3Type == c_m3Type_i64 or i_m3Type == c_m3Type_f64)
+    if (i_m3Type == c_m3Type_i64 || i_m3Type == c_m3Type_f64)
         return true;
-    else if (i_m3Type == c_m3Type_i32 or i_m3Type == c_m3Type_f32 or i_m3Type == c_m3Type_none)
+    else if (i_m3Type == c_m3Type_i32 || i_m3Type == c_m3Type_f32 || i_m3Type == c_m3Type_none)
         return false;
     else
         return (sizeof (voidptr_t) == 8); // all other cases are pointers
@@ -236,7 +236,7 @@ bool  Is64BitType  (u8 i_m3Type)
 
 u32  SizeOfType  (u8 i_m3Type)
 {
-    if (i_m3Type == c_m3Type_i32 or i_m3Type == c_m3Type_f32)
+    if (i_m3Type == c_m3Type_i32 || i_m3Type == c_m3Type_f32)
         return sizeof (i32);
 
     return sizeof (i64);
@@ -409,7 +409,7 @@ M3Result  ReadLebSigned  (i64 * o_value, u32 i_maxNumBits, bytes_t * io_bytes, c
         {
             result = m3Err_none;
 
-            if ((byte & 0x40) and (shift < 64))    // do sign extension
+            if ((byte & 0x40) && (shift < 64))    // do sign extension
             {
                 u64 extend = 0;
                 value |= (~extend << shift);

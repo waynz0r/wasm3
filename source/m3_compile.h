@@ -168,7 +168,7 @@ bool  IsStackPolymorphic  (IM3Compilation o)
     return o->block.isPolymorphic;
 }
 
-static inline bool  IsRegisterSlotAlias        (u16 i_slot)    { return (i_slot >= d_m3Reg0SlotAlias and i_slot != c_slotUnused); }
+static inline bool  IsRegisterSlotAlias        (u16 i_slot)    { return (i_slot >= d_m3Reg0SlotAlias && i_slot != c_slotUnused); }
 static inline bool  IsFpRegisterSlotAlias      (u16 i_slot)    { return (i_slot == d_m3Fp0SlotAlias);  }
 static inline bool  IsIntRegisterSlotAlias     (u16 i_slot)    { return (i_slot == d_m3Reg0SlotAlias); }
 

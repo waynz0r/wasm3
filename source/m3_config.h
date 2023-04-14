@@ -136,7 +136,7 @@
 // other ----------------------------------------------------------------------
 
 # ifndef d_m3HasFloat
-#   define d_m3HasFloat                         1       // implement floating point ops
+#   define d_m3HasFloat                         0       // implement floating point ops
 # endif
 
 #if !d_m3HasFloat && !defined(d_m3NoFloatDynamic)

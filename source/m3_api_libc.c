@@ -12,9 +12,14 @@
 #include "m3_env.h"
 #include "m3_exception.h"
 
+#ifdef __KERNEL__
+#include <linux/time.h>
+#include <linux/errno.h>
+#elif
 #include <time.h>
 #include <errno.h>
 #include <stdio.h>
+#endif
 
 typedef uint32_t wasm_ptr_t;
 typedef uint32_t wasm_size_t;
@@ -70,8 +75,7 @@ m3ApiRawFunction(m3_libc_print)
 
     m3ApiCheckMem(i_ptr, i_size);
 
-    fwrite(i_ptr, i_size, 1, stdout);
-    fflush(stdout);
+    printk("%.*s", i_size, (char*) i_ptr);
 
     m3ApiReturn(i_size);
 }
@@ -119,13 +123,11 @@ m3ApiRawFunction(m3_libc_printf)
     size_t fmt_len = strnlen(i_fmt, 1024);
     m3ApiCheckMem(i_fmt, fmt_len+1); // include `\0`
 
-    FILE* file = stdout;
-
     int32_t length = 0;
     char ch;
     while ((ch = *i_fmt++)) {
         if ( '%' != ch ) {
-            putc(ch, file);
+            printk(&ch);
             length++;
             continue;
         }
@@ -134,7 +136,7 @@ m3ApiRawFunction(m3_libc_printf)
             case 'c': {
                 m3ApiCheckMem(i_args, sizeof(wasm_ptr_t));
                 char char_temp = *i_args++;
-                fputc(char_temp, file);
+                printk(&char_temp);
                 length++;
                 break;
             }
@@ -144,7 +146,7 @@ m3ApiRawFunction(m3_libc_printf)
                 int int_temp = *i_args++;
                 char buffer[32] = { 0, };
                 internal_itoa(int_temp, buffer, (ch == 'x') ? 16 : 10);
-                fputs(buffer, file);
+                printk(buffer);
                 length += strnlen(buffer, sizeof(buffer));
                 break;
             }
@@ -162,11 +164,11 @@ m3ApiRawFunction(m3_libc_printf)
                     m3ApiCheckMem(string_temp, string_len+1);
                 }
 
-                fwrite(string_temp, 1, string_len, file);
+                printk(string_temp);
                 length += string_len;
                 break;
             default:
-                fputc(ch, file);
+                printk(&ch);
                 length++;
                 break;
             }
@@ -176,18 +178,18 @@ m3ApiRawFunction(m3_libc_printf)
     m3ApiReturn(length);
 }
 
-m3ApiRawFunction(m3_libc_clock_ms)
+m3ApiRawFunction(m3_libc_clock_ns)
 {
-    m3ApiReturnType (uint32_t)
+    m3ApiReturnType (int64_t)
 #ifdef CLOCKS_PER_SEC
     uint32_t clock_divider = CLOCKS_PER_SEC/1000;
     if (clock_divider != 0) {
-        m3ApiReturn(clock() / clock_divider);
+        m3ApiReturn(ktime_get_real() / clock_divider);
     } else {
-        m3ApiReturn(clock());
+        m3ApiReturn(ktime_get_real());
     }
 #else
-    m3ApiReturn(clock());
+    m3ApiReturn(ktime_get_real());
 #endif
 }
 
@@ -236,7 +238,7 @@ _   (SuppressLookupFailure (m3_LinkRawFunction (module, env, "_memmove",        
 _   (SuppressLookupFailure (m3_LinkRawFunction (module, env, "_memcpy",           "*(**i)",  &m3_libc_memmove))); // just alias of memmove
 _   (SuppressLookupFailure (m3_LinkRawFunction (module, env, "_abort",            "v()",     &m3_libc_abort)));
 _   (SuppressLookupFailure (m3_LinkRawFunction (module, env, "_exit",             "v(i)",    &m3_libc_exit)));
-_   (SuppressLookupFailure (m3_LinkRawFunction (module, env, "clock_ms",          "i()",     &m3_libc_clock_ms)));
+_   (SuppressLookupFailure (m3_LinkRawFunction (module, env, "clock_ns",          "I()",     &m3_libc_clock_ns)));
 _   (SuppressLookupFailure (m3_LinkRawFunction (module, env, "printf",            "i(**)",   &m3_libc_printf)));
 
 _catch:

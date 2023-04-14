@@ -53,7 +53,8 @@ _   (ReadLEB_u32 (& numTypes, & i_bytes, i_end));                               
         _throwifnull (io_module->funcTypes);
         io_module->numFuncTypes = numTypes;
 
-        for (u32 i = 0; i < numTypes; ++i)
+        u32 i;
+        for (i = 0; i < numTypes; ++i)
         {
             i8 form;
 _           (ReadLEB_i7 (& form, & i_bytes, i_end));
@@ -68,7 +69,8 @@ _           (ReadLEB_u32 (& numArgs, & i_bytes, i_end));
 #else
             u8 argTypes[numArgs+1]; // make ubsan happy
 #endif
-            for (u32 a = 0; a < numArgs; ++a)
+        u32 a;
+        for (a = 0; a < numArgs; ++a)
             {
                 i8 wasmType;
                 u8 argType;
@@ -86,7 +88,8 @@ _           (AllocFuncType (& ftype, numRets + numArgs));
             ftype->numArgs = numArgs;
             ftype->numRets = numRets;
 
-            for (u32 r = 0; r < numRets; ++r)
+            u32 r;
+            for (r = 0; r < numRets; ++r)
             {
                 i8 wasmType;
                 u8 retType;
@@ -128,7 +131,8 @@ _   (ReadLEB_u32 (& numFunctions, & i_bytes, i_end));                           
 
 _   (Module_PreallocFunctions(io_module, io_module->numFunctions + numFunctions));
 
-    for (u32 i = 0; i < numFunctions; ++i)
+    u32 i;
+    for (i = 0; i < numFunctions; ++i)
     {
         u32 funcTypeIndex;
 _       (ReadLEB_u32 (& funcTypeIndex, & i_bytes, i_end));
@@ -154,7 +158,8 @@ _   (ReadLEB_u32 (& numImports, & i_bytes, i_end));                             
     // Most imports are functions, so we won't waste much space anyway (if any)
 _   (Module_PreallocFunctions(io_module, numImports));
 
-    for (u32 i = 0; i < numImports; ++i)
+    u32 i;
+    for (i = 0; i < numImports; ++i)
     {
         u8 importKind;
 
@@ -228,7 +233,8 @@ _   (ReadLEB_u32 (& numExports, & i_bytes, i_end));                             
 
     _throwif("too many exports", numExports > d_m3MaxSaneExportsCount);
 
-    for (u32 i = 0; i < numExports; ++i)
+    u32 i;
+    for (i = 0; i < numExports; ++i)
     {
         u8 exportKind;
         u32 index;
@@ -333,7 +339,8 @@ _   (ReadLEB_u32 (& numFunctions, & i_bytes, i_end));                           
         _throw ("mismatched function count in code section");
     }
 
-    for (u32 f = 0; f < numFunctions; ++f)
+    u32 f;
+    for (f = 0; f < numFunctions; ++f)
     {
         const u8 * start = i_bytes;
 
@@ -381,7 +388,7 @@ _                   (NormalizeType (& normalType, wasmType));
 
     _catch:
 
-    if (not result and i_bytes != i_end)
+    if (not result && i_bytes != i_end)
         result = m3Err_wasmSectionUnderrun;
 
     return result;
@@ -401,7 +408,8 @@ _   (ReadLEB_u32 (& numDataSegments, & i_bytes, i_end));                        
     _throwifnull(io_module->dataSegments);
     io_module->numDataSegments = numDataSegments;
 
-    for (u32 i = 0; i < numDataSegments; ++i)
+    u32 i;
+    for (i = 0; i < numDataSegments; ++i)
     {
         M3DataSegment * segment = & io_module->dataSegments [i];
 
@@ -453,7 +461,8 @@ _   (ReadLEB_u32 (& numGlobals, & i_bytes, i_end));                             
 
     _throwif("too many globals", numGlobals > d_m3MaxSaneGlobalsCount);
 
-    for (u32 i = 0; i < numGlobals; ++i)
+    u32 i;
+    for (i = 0; i < numGlobals; ++i)
     {
         i8 waType;
         u8 type, isMutable;
@@ -498,7 +507,8 @@ _           (ReadLEB_u32 (& numNames, & i_bytes, i_end));
 
             _throwif("too many names", numNames > d_m3MaxSaneFunctionsCount);
 
-            for (u32 i = 0; i < numNames; ++i)
+            u32 i;
+            for (i = 0; i < numNames; ++i)
             {
                 u32 index;
 _               (ReadLEB_u32 (& index, & i_bytes, i_end));
@@ -507,13 +517,11 @@ _               (Read_utf8 (& name, & i_bytes, i_end));
                 if (index < io_module->numFunctions)
                 {
                     IM3Function func = &(io_module->functions [index]);
-                    if (func->numNames == 0)
+                    if (func->numNames < d_m3MaxDuplicateFunctionImpl)
                     {
-                        func->names[0] = name;        m3log (parse, "    naming function%5d:  %s", index, name);
-                        func->numNames = 1;
+                        func->names[func->numNames++] = name;        m3log (parse, "    naming function%5d:  %s", index, name);
                         name = NULL; // transfer ownership
                     }
-//                          else m3log (parse, "prenamed: %s", io_module->functions [index].name);
                 }
 
                 m3_Free (name);

@@ -85,7 +85,8 @@ void  Function_Release  (IM3Function i_function)
 {
     m3_Free (i_function->constants);
 
-    for (int i = 0; i < i_function->numNames; i++)
+    int i;
+    for (i = 0; i < i_function->numNames; i++)
     {
         // name can be an alias of fieldUtf8
         if (i_function->names[i] != i_function->import.fieldUtf8)

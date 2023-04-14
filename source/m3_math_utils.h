@@ -10,7 +10,13 @@
 
 #include "m3_core.h"
 
+#ifndef __KERNEL__
 #include <limits.h>
+#endif
+
+#ifndef CHAR_BIT
+#define CHAR_BIT 8	/* Normally in <limits.h>, but on some targets it is missing. */
+#endif
 
 #if defined(M3_COMPILER_MSVC)
 
@@ -162,18 +168,18 @@ u64 rotr64(u64 n, unsigned c) {
     RES = A % B;
 
 // 2's complement detection
-#if (INT_MIN != -INT_MAX)
+#if (-1 & 3) == 3
 
     #define OP_DIV_S(RES, A, B, TYPE_MIN)                         \
         if (M3_UNLIKELY(B == 0)) newTrap (m3Err_trapDivisionByZero); \
-        if (M3_UNLIKELY(B == -1 and A == TYPE_MIN)) {                \
+        if (M3_UNLIKELY(B == -1 && A == TYPE_MIN)) {                \
             newTrap (m3Err_trapIntegerOverflow);                  \
         }                                                         \
         RES = A / B;
 
     #define OP_REM_S(RES, A, B, TYPE_MIN)                         \
         if (M3_UNLIKELY(B == 0)) newTrap (m3Err_trapDivisionByZero); \
-        if (M3_UNLIKELY(B == -1 and A == TYPE_MIN)) RES = 0;         \
+        if (M3_UNLIKELY(B == -1 && A == TYPE_MIN)) RES = 0;         \
         else RES = A % B;
 
 #else
@@ -191,7 +197,7 @@ u64 rotr64(u64 n, unsigned c) {
     if (M3_UNLIKELY(isnan(A))) {                               \
         newTrap (m3Err_trapIntegerConversion);              \
     }                                                       \
-    if (M3_UNLIKELY(A <= RMIN or A >= RMAX)) {                 \
+    if (M3_UNLIKELY(A <= RMIN || A >= RMAX)) {                 \
         newTrap (m3Err_trapIntegerOverflow);                \
     }                                                       \
     RES = (TYPE)A;
@@ -234,33 +240,37 @@ u64 rotr64(u64 n, unsigned c) {
 
 #if d_m3HasFloat
 
+#ifdef __KERNEL__
+#include "musl_math.h"
+#else
 #include <math.h>
+#endif
 
 static inline
 f32 min_f32(f32 a, f32 b) {
-    if (M3_UNLIKELY(isnan(a) or isnan(b))) return NAN;
-    if (M3_UNLIKELY(a == 0 and a == b)) return signbit(a) ? a : b;
+    if (M3_UNLIKELY(isnan(a) || isnan(b))) return NAN;
+    if (M3_UNLIKELY(a == 0 && a == b)) return signbit(a) ? a : b;
     return a > b ? b : a;
 }
 
 static inline
 f32 max_f32(f32 a, f32 b) {
-    if (M3_UNLIKELY(isnan(a) or isnan(b))) return NAN;
-    if (M3_UNLIKELY(a == 0 and a == b)) return signbit(a) ? b : a;
+    if (M3_UNLIKELY(isnan(a) || isnan(b))) return NAN;
+    if (M3_UNLIKELY(a == 0 && a == b)) return signbit(a) ? b : a;
     return a > b ? a : b;
 }
 
 static inline
 f64 min_f64(f64 a, f64 b) {
-    if (M3_UNLIKELY(isnan(a) or isnan(b))) return NAN;
-    if (M3_UNLIKELY(a == 0 and a == b)) return signbit(a) ? a : b;
+    if (M3_UNLIKELY(isnan(a) || isnan(b))) return NAN;
+    if (M3_UNLIKELY(a == 0 && a == b)) return signbit(a) ? a : b;
     return a > b ? b : a;
 }
 
 static inline
 f64 max_f64(f64 a, f64 b) {
-    if (M3_UNLIKELY(isnan(a) or isnan(b))) return NAN;
-    if (M3_UNLIKELY(a == 0 and a == b)) return signbit(a) ? b : a;
+    if (M3_UNLIKELY(isnan(a) || isnan(b))) return NAN;
+    if (M3_UNLIKELY(a == 0 && a == b)) return signbit(a) ? b : a;
     return a > b ? a : b;
 }
 #endif

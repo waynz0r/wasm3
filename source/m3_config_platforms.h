@@ -16,8 +16,8 @@
 
 # if !defined(__cplusplus) || defined(_MSC_VER)
 #   define not      !
-#   define and      &&
-#   define or       ||
+// #   define and      &&
+// #   define or       ||
 # endif
 
 /*
@@ -203,6 +203,16 @@ typedef int8_t          i8;
 #  ifndef d_m3Use32BitSlots
 #    define d_m3Use32BitSlots                   0
 #  endif
+#endif
+
+/*
+ * Missing constants in the kernel space
+*/
+#if defined(__KERNEL__)
+#define INT32_MIN  S32_MIN
+#define UINT32_MIN U32_MIN
+#define INT64_MIN  S64_MIN
+#define UINT64_MIN U64_MIN
 #endif
 
 #endif // m3_config_platforms_h

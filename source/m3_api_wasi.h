@@ -31,7 +31,7 @@ M3Result    m3_LinkWASIWithOptions  (IM3Module io_module, uvwasi_options_t uvwas
 
 #endif
 
-m3_wasi_context_t* m3_GetWasiContext();
+m3_wasi_context_t* m3_GetWasiContext(void);
 
 d_m3EndExternC
 

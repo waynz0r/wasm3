@@ -13,10 +13,18 @@
 #define M3_VERSION_REV   0
 #define M3_VERSION       "0.5.0"
 
+#ifdef __KERNEL__
+#include <linux/module.h>
+#include <linux/slab.h>
+#define printf printk
+#define PRIi32 "i"
+#define PRIi64 "lli"
+#elif
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdarg.h>
+#endif
 
 #include "wasm3_defs.h"
 
@@ -290,6 +298,11 @@ d_m3ErrorConst  (trapStackOverflow,             "[trap] stack overflow")
     // o_function is valid during the lifetime of the originating runtime
     M3Result            m3_FindFunction             (IM3Function *          o_function,
                                                      IM3Runtime             i_runtime,
+                                                     const char * const     i_functionName);
+
+    M3Result            m3_FindFunctionInModule     (IM3Function *          o_function,
+                                                     IM3Runtime             i_runtime,
+                                                     const char * const     i_moduleName,
                                                      const char * const     i_functionName);
 
     uint32_t            m3_GetArgCount              (IM3Function i_function);

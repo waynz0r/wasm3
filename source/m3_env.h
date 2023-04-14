@@ -203,6 +203,7 @@ typedef void *              (* ModuleVisitor)           (IM3Module i_module, voi
 void *                      ForEachModule               (IM3Runtime i_runtime, ModuleVisitor i_visitor, void * i_info);
 
 void *                      v_FindFunction              (IM3Module i_module, const char * const i_name);
+void *                      v_FindModule                (IM3Module i_module, const char * const i_name);
 
 IM3CodePage                 AcquireCodePage             (IM3Runtime io_runtime);
 IM3CodePage                 AcquireCodePageWithCapacity (IM3Runtime io_runtime, u32 i_lineCount);

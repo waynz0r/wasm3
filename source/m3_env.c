@@ -334,7 +334,7 @@ M3Result  InitMemory  (IM3Runtime io_runtime, IM3Module i_module)
 {
     M3Result result = m3Err_none;                                     //d_m3Assert (not io_runtime->memory.wasmPages);
 
-    if (not i_module->memoryImported)
+    // if (not i_module->memoryImported) // to support OPA wasm modules
     {
         u32 maxPages = i_module->memoryInfo.maxPages;
         io_runtime->memory.maxPages = maxPages ? maxPages : 65536;

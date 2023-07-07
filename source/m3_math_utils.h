@@ -10,8 +10,17 @@
 
 #include "m3_core.h"
 
-#ifndef __KERNEL__
+#ifdef __KERNEL__
+
+#include <linux/bitops.h>
+
+#define __builtin_popcount    hweight_long
+#define __builtin_popcountll  hweight_long
+
+#else
+
 #include <limits.h>
+
 #endif
 
 #ifndef CHAR_BIT

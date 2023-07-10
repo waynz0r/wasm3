@@ -126,19 +126,19 @@ void *  m3_Realloc_Impl  (void * i_ptr, size_t i_newSize, size_t i_oldSize)
 
 void *  m3_Malloc_Impl  (size_t i_size)
 {
-    return kzalloc (i_size, GFP_KERNEL);
+    return kvzalloc (i_size, GFP_KERNEL);
 }
 
 void  m3_Free_Impl  (void * io_ptr)
 {
-    kfree (io_ptr);
+    kvfree (io_ptr);
 }
 
 void *  m3_Realloc_Impl  (void * i_ptr, size_t i_newSize, size_t i_oldSize)
 {
     if (M3_UNLIKELY(i_newSize == i_oldSize)) return i_ptr;
 
-    void * newPtr = krealloc (i_ptr, i_newSize, GFP_KERNEL);
+    void * newPtr = kvrealloc (i_ptr, i_oldSize, i_newSize, GFP_KERNEL);
 
     if (M3_LIKELY(newPtr))
     {

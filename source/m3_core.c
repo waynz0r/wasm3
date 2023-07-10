@@ -124,6 +124,8 @@ void *  m3_Realloc_Impl  (void * i_ptr, size_t i_newSize, size_t i_oldSize)
 
 #else
 
+#include <linux/mm.h>
+
 void *  m3_Malloc_Impl  (size_t i_size)
 {
     return kvzalloc (i_size, GFP_KERNEL);

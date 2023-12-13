@@ -15,7 +15,7 @@ d_m3BeginExternC
 typedef struct M3CodePage
 {
     M3CodePageHeader        info;
-    code_t                  code                [1];
+    code_t                  code                [];
 }
 M3CodePage;
 

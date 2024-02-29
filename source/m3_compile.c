@@ -1695,6 +1695,7 @@ _           (EmitOp     (o, op));
         }
         else
         {
+	    pr_err("akarmi [%s.%s]\n", GetFunctionImportModuleName (function), m3_GetFunctionName (function));
             _throw (ErrorCompile (m3Err_functionImportMissing, o, "'%s.%s'", GetFunctionImportModuleName (function), m3_GetFunctionName (function)));
         }
     }
